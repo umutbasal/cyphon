@@ -14,34 +14,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Cyphon Engine. If not, see <http://www.gnu.org/licenses/>.
-"""
 
+"""
+Serializers for the categories package.
 """
 
 # third party
-from django.conf import settings as conf
-from django.db import models
+from rest_framework import serializers
 
 # local
-from sifter.chutes.models import Chute, ChuteManager
-from sifter.logsifter.logsieves.models import LogSieve
-from sifter.logsifter.logmungers.models import LogMunger
+from .models import Category
 
 
-class LogChuteManager(ChuteManager):
+class CategorySerializer(serializers.ModelSerializer):
     """
-    Adds methods to the default model manager.
+    Serializer for the Category object.
     """
 
-    settings = conf.LOGSIFTER
-
-
-class LogChute(Chute):
-    """
-
-    """
-    sieve = models.ForeignKey(LogSieve, null=True, blank=True, default=None,
-                              related_name='chutes', related_query_name='chute')
-    munger = models.ForeignKey(LogMunger)
-
-    objects = LogChuteManager()
+    class Meta:
+        model = Category
+        fields = '__all__'

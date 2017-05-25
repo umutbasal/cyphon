@@ -4,9 +4,50 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/). This project adheres to [Semantic Versioning](http://semver.org/).
 
-
 <a name="Unreleased"></a>
 ## [Unreleased]
+
+### Added
+
+- **categories:** added REST API endpoint for Categories ([360dc56](https://github.com/dunbarcyber/cyphon/commit/360dc56))
+- **docs:** added Logstash tutorial ([69769f9](https://github.com/dunbarcyber/cyphon/commit/69769f9))
+
+### Fixed
+- **.gitignore:** fixed directory for Cyphon settings ([e863c4a](https://github.com/dunbarcyber/cyphon/commit/e863c4a))
+- **docs:** updated instructions for Elasticsearch data directory ([03c3446](https://github.com/dunbarcyber/cyphon/commit/03c3446))
+
+<a name="1.1.2"></a>
+## [1.1.2](https://github.com/dunbarcyber/cyphon/compare/1.1.1...1.1.2) (2017-05-16)
+
+### Fixed
+- **sifter.mungers:** modified `Munger.process()` to avoid errors when processing mail ([84f8871](https://github.com/dunbarcyber/cyphon/commit/84f8871))
+
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/dunbarcyber/cyphon/compare/1.1.0...1.1.1) (2017-05-16)
+
+### Fixed
+- **alerts:** modified `Alert.save()` so that `location` and `content_date` are added the Alert to even if the Alert already has `data`, and a `title` with a default value is refreshed ([a37d9eb](https://github.com/dunbarcyber/cyphon/commit/a37d9eb))
+- **alerts:** `Alert.saved_data` is no longer cached ([9fdba5d](https://github.com/dunbarcyber/cyphon/commit/9fdba5d))
+- **engines.elasticsearch.engine:** Elasticsearch indexes are refreshed prior to searching by id ([65d72e2](https://github.com/dunbarcyber/cyphon/commit/65d72e2))
+- **watchdogs:** Watchdogs pass data directly to Muzzles instead of fetching saved data, avoiding race condition in Logstash ([7c5a53d](https://github.com/dunbarcyber/cyphon/commit/7c5a53d))
+
+<a name="1.1.0"></a>
+## [1.1.0](https://github.com/dunbarcyber/cyphon/compare/1.0.3...1.1.0) (2017-05-14)
+
+### Added
+
+- **cyphon.documents:** added `DocumentOj` class for handling document references ([d701762](https://github.com/dunbarcyber/cyphon/commit/d701762))
+- **receiver.receiver:** added RabbitMQ queue consumers for DataChutes, Watchdogs, and Monitors ([d701762](https://github.com/dunbarcyber/cyphon/commit/d701762))
+- **target.followees:** added `get_by_natural_key()` method for Followees, Accounts, LegalNames, and Aliases ([0f8f3b8](https://github.com/dunbarcyber/cyphon/commit/0f8f3b8))
+- **target.locations:** added `get_by_natural_key()` method for Locations ([2b5199d](https://github.com/dunbarcyber/cyphon/commit/2b5199d))
+- **target.searchterms:** added `get_by_natural_key()` method for SearchTerms ([813c1ca](https://github.com/dunbarcyber/cyphon/commit/813c1ca))
+
+### Fixed
+- **sifter.condensers:** removed extra inline Fitting form ([10f53ce](https://github.com/dunbarcyber/cyphon/commit/10f53ce))
+- **sifter.logsifter:** fixed "Test this rule" tool on LogRule admin page ([751d55b](https://github.com/dunbarcyber/cyphon/commit/751d55b))
+
+<a name="1.0.3"></a>
+## [1.0.3](https://github.com/dunbarcyber/cyphon/compare/1.0.2...1.0.3) (2017-05-14)
 
 ### Added
 
@@ -23,6 +64,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/). This proj
 ### Fixed
 
 - **cyphon.dashboard:** added Protocols and Constance to admin dashboard ([ee34361](https://github.com/dunbarcyber/cyphon/commit/ee34361), [0cbbb15](https://github.com/dunbarcyber/cyphon/commit/0cbbb15))
+- **responder.actions.filters:** fixed ActionFilterBackend to allow access to Actions associated with public Passports ([952464b](https://github.com/dunbarcyber/cyphon/commit/952464b))
 
 ### Removed
 

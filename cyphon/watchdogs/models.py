@@ -36,6 +36,7 @@ from categories.models import Category
 from cyphon.choices import ALERT_LEVEL_CHOICES, TIME_UNIT_CHOICES
 from cyphon.transaction import require_lock
 from utils.dateutils.dateutils import convert_time_to_whole_minutes
+from utils.dbutils.dbutils import json_encodeable
 from utils.parserutils.parserutils import get_dict_value
 from sifter.datasifter.datasieves.models import DataSieve
 
@@ -47,12 +48,32 @@ class WatchdogManager(AlarmManager):
     Adds methods to the default model manager.
     """
 
-    def find_relevant(self, distillery):
+    @staticmethod
+    def _get_categories(distillery):
         """
+        Takes a Distillery and returns a Queryset of Categories
+        associated with the Distillery. If distillery=None, returns None.
+        """
+        if distillery:
+            return distillery.categories.all()
+
+    def find_relevant(self, distillery):
+        """Find appropriate Watchdogs for inspecting a document.
+
+        Parameters
+        ----------
+        distillery : |Distillery| or |None|
+            The |Distillery| associated with the document to be
+            inspected.
+
+        Returns
+        -------
+        |Queryset|
+            A |Queryset| of |Watchdogs| for inspecting a document.
 
         """
         enabled_watchdogs = super(WatchdogManager, self).find_enabled()
-        categories = distillery.categories.all()
+        categories = self._get_categories(distillery)
         queryset = enabled_watchdogs.annotate(
             categories_cnt=models.Count('categories')
         )
@@ -110,16 +131,19 @@ class Watchdog(Alarm):
         else:
             return False
 
-    def _create_alert(self, level, distillery, doc_id):
+    def _create_alert(self, level, doc_obj):
         """
         Takes an alert level, a distillery, and a document id. Returns
         an Alert object.
         """
+        data = json_encodeable(doc_obj.data)
+
         return Alert(
             level=level,
             alarm=self,
-            distillery=distillery,
-            doc_id=doc_id,
+            distillery=doc_obj.distillery,
+            doc_id=doc_obj.doc_id,
+            data=data
         )
 
     @transaction.atomic
@@ -133,27 +157,47 @@ class Watchdog(Alarm):
             return alert
 
     def inspect(self, data):
-        """
-        Takes a data dictionary and returns the alert_level of the first
-        Trigger that matches the data. If the data matches no Triggers,
-        returns None.
+        """Return an Alert level for a document.
+
+        Parameters
+        ----------
+        data: dict
+            The document to be inspected.
+
+        Returns
+        -------
+        |str| or |None|
+            If the data matches one of the Watchdog's |triggers|,
+            returns the :attr:`~Trigger.alert_level` for that Ttrigger|.
+            Otherwise, returns |None|.
+
         """
         triggers = self.triggers.all()
         for trigger in triggers:
             if trigger.is_match(data):
                 return trigger.alert_level
 
-    def process(self, data, distillery, doc_id):
-        """
-        Takes a dictionary of data, a distillery, and a document id.
-        If the Watchdog is enabled, inspects the data and generates an
-        Alert if necessary. If the Watchdog is disabled or an Alert is
-        not warranted, returns None.
+    def process(self, doc_obj):
+        """Generate an |Alert| for a document if appropriate.
+
+        Parameters
+        ----------
+        doc_obj: |DocumentObj|
+            Data and related information about the document to be
+            inspected.
+
+        Returns
+        -------
+        |Alert| or |None|
+            Returns an |Alert| if the Watchdog is enabled and the
+            document matches one of the Watchdog's |Triggers|.
+            Otherwise, returns |None|.
+
         """
         if self.enabled:
-            alert_level = self.inspect(data)
+            alert_level = self.inspect(doc_obj.data)
             if alert_level is not None:
-                alert = self._create_alert(alert_level, distillery, doc_id)
+                alert = self._create_alert(alert_level, doc_obj)
                 return self._process_alert(alert)
 
 
@@ -357,7 +401,7 @@ class Muzzle(models.Model):
         """
         fields = self._get_fields()
         alerts = self._get_filtered_alerts(alert)
-        new_data = alert.saved_data
+        new_data = alert.data
         for old_alert in alerts:
             match = True
             old_data = old_alert.data

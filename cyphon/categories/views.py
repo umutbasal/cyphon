@@ -14,34 +14,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Cyphon Engine. If not, see <http://www.gnu.org/licenses/>.
-"""
 
 """
-
-# third party
-from django.conf import settings as conf
-from django.db import models
+Views for the categories package.
+"""
 
 # local
-from sifter.chutes.models import Chute, ChuteManager
-from sifter.logsifter.logsieves.models import LogSieve
-from sifter.logsifter.logmungers.models import LogMunger
+from cyphon.views import CustomModelViewSet
+from .models import Category
+from .serializers import CategorySerializer
 
 
-class LogChuteManager(ChuteManager):
+class CategoryViewSet(CustomModelViewSet):
     """
-    Adds methods to the default model manager.
+    ViewSet for viewing categories.
     """
-
-    settings = conf.LOGSIFTER
-
-
-class LogChute(Chute):
-    """
-
-    """
-    sieve = models.ForeignKey(LogSieve, null=True, blank=True, default=None,
-                              related_name='chutes', related_query_name='chute')
-    munger = models.ForeignKey(LogMunger)
-
-    objects = LogChuteManager()
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
